@@ -1,0 +1,33 @@
+.artifactory-docker-publish:
+
+  variables:
+    dockerversion: ""
+    path: ""
+    package_name: ""
+    version: ""
+
+    # secrets
+    JFROG_URL: $JFROG_URL
+    JFROG_USER: $JFROG_USER
+    GITLAB_DOCKER_JFROG_TOKEN: $GITLAB_DOCKER_JFROG_TOKEN
+    JFROG_DOCKER_REGISTRY: $JFROG_DOCKER_REGISTRY
+    NPMRC: $NPMRC
+
+  allow_failure: false
+
+  image:
+    name: docker:"$dockerversion"
+
+  services:
+    - docker:"$dockerversion"-dind
+
+  script:
+    - cd $path
+    - touch .npmrc && echo -e "$NPMRC" >> .npmrc
+    - docker login "$JFROG_URL" -u "$JFROG_USER" -p "$GITLAB_DOCKER_JFROG_TOKEN"
+    - docker pull "$JFROG_DOCKER_REGISTRY""$package_name":latest
+    - docker build --cache-from "$JFROG_DOCKER_REGISTRY""$package_name":latest --tag "$JFROG_DOCKER_REGISTRY""$package_name":$version --tag "$JFROG_DOCKER_REGISTRY""$package_name":latest .
+    - docker push --all-tags "$JFROG_DOCKER_REGISTRY""$package_name"
+  
+  only:
+    - main

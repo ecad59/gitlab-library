@@ -1,0 +1,8 @@
+.build:
+
+  variables:
+    path: '.'
+    
+  script:
+    - cd $path
+    - npm ci

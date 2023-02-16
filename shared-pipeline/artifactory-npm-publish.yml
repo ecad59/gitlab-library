@@ -1,0 +1,22 @@
+.artifactory-npm-publish:
+
+  variables:
+      path: ""
+
+      # secrets
+      JFROG_USER: $JFROG_USER
+      JFROG_NPM_REGISTRY: $JFROG_NPM_REGISTRY
+      GITLAB_JFROG_USERNAME: $GITLAB_JFROG_USERNAME
+      GITLAB_JFROG_PASSWORD: $GITLAB_JFROG_PASSWORD
+
+  allow_failure: false
+
+  script:
+    - npm install -g npm-cli-login
+    - cd "$path"
+    - npm config set registry $"JFROG_NPM_REGISTRY"
+    - npm-cli-login -u "$GITLAB_JFROG_USERNAME" -p "$GITLAB_JFROG_PASSWORD" -e "$JFROG_USER" -r "JFROG_NPM_REGISTRY" --quotes
+    - npm publish
+
+  only:
+    - main

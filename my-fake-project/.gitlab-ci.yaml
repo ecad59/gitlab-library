@@ -1,0 +1,46 @@
+image: ubuntu:latest
+include:
+# gitlab template
+- template: Security/SAST.gitlab-ci.yml
+- template: Security/Secret-Detection.gitlab-ci.yml
+- template: Jobs/SAST-IaC.latest.gitlab-ci.yml
+- template: Security/Dependency-Scanning.gitlab-ci.yml
+
+# group name is your username if the project is under personal account
+- project: <my-group>/gitlab-library/shared-pipeline
+  ref: main
+  file: "build.yml"
+
+- project: <my-group>/gitlab-library/shared-pipeline
+  ref: main
+  file: "artifactory-docker-publish.yml"
+
+- project: <my-group>/gitlab-library/shared-pipeline
+  ref: main
+  file: "artifactory-npm-publish.yml"
+
+- project: <my-group>/gitlab-library/shared-pipeline
+  ref: main
+  file: "sonarcloud.yml"
+
+build:
+  extends: .build
+  variables:
+    path: ""
+
+sonarcloud-check:
+  extends: .sonarcloud
+
+publish-npm:
+  extends: .artifactory-npm-publish
+  variables:
+    path: ""
+
+publish-docker:
+  extends: .artifactory-docker-publish
+  variables:
+    path: ""
+    dockerversion: ""
+    package_name: ""
+    version: ""
+
